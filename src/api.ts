@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { generateV2rayConfig, startV2ray, stopV2ray, v2ray } from "./v2ray";
+import { generateV2rayConfig, startV2ray, stopV2ray } from "./v2ray";
+import { proxies } from "./proxy";
 
 const app = express();
 
@@ -9,7 +10,7 @@ app.use(express.static("www"));
 app.use(bodyParser.json());
 
 app.post("/api/matchProxies", async (req, res) => {
-  const proxies: { inUse: boolean; port: number; state: string }[] = (
+  const params: { inUse: boolean; port: number; state: string }[] = (
     req.body as { inUse: string; port: string; state: string }[]
   ).map((proxy) => ({
     inUse: proxy.inUse == "yes",
@@ -17,15 +18,15 @@ app.post("/api/matchProxies", async (req, res) => {
     state: proxy.state,
   }));
 
-  console.log("proxies", proxies);
+  console.log("proxies", params);
 
-  for (const { inUse, port, state } of proxies) {
+  for (const { inUse, port, state } of params) {
     if (!inUse) {
       stopV2ray(port);
       continue;
     }
 
-    if (v2ray[port]) {
+    if (proxies[port]) {
       continue;
     }
 

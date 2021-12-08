@@ -1,10 +1,7 @@
-import { ChildProcessWithoutNullStreams, spawn } from "child_process";
-import fs from 'fs'
+import { spawn } from "child_process";
+import fs from "fs";
 import { chooseResidentialProxy } from "./common";
-
-export const v2ray: {
-  [port: number]: ChildProcessWithoutNullStreams;
-} = {};
+import { proxies } from "./proxy";
 
 export async function generateV2rayConfig(port: number, state: string) {
   const sessionPassword = await chooseResidentialProxy(state);
@@ -21,15 +18,15 @@ export async function generateV2rayConfig(port: number, state: string) {
   fs.writeFileSync(`v2ray/config-${port}.json`, replacedConfig);
 }
 
-export function stopV2ray(port: number) {
-
-}
+export function stopV2ray(port: number) {}
 
 export function startV2ray(port: number) {
   const childProcess = spawn(`v2ray/v2ray.exe`, [
     `-config=v2ray/config-${port}.json`,
   ]);
-  v2ray[port] = childProcess;
+  proxies[port] = {
+    v2ray: childProcess,
+  };
 
   childProcess.stdout.on("data", (data) => {
     console.log(`stdout: ${data}`);
@@ -42,5 +39,4 @@ export function startV2ray(port: number) {
   childProcess.on("close", (code) => {
     console.log(`child process exited with code ${code}`);
   });
-} 
-
+}
