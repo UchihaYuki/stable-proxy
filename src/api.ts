@@ -17,7 +17,7 @@ app.post("/api/matchProxies", async (req, res) => {
     state: proxy.state,
   }));
 
-  console.log("proxies", params);
+  console.log("/api/matchProxies", params);
 
   for (const { inUse, port, state } of params) {
     if (!inUse) {
@@ -36,6 +36,8 @@ app.post("/api/matchProxies", async (req, res) => {
 });
 
 app.post("/api/getStatus", (req, res) => {
+  console.log("/api/getStatus")
+
   const result: any[] = [];
   for (const port in proxies) {
     const proxy = proxies[port];
@@ -47,6 +49,8 @@ app.post("/api/getStatus", (req, res) => {
       timeoutCounter: proxy.timeoutCounter,
       speed: proxy.speed,
       lastSpeedTest: proxy.lastSpeedTest,
+      ip: proxy.ip,
+      ipChanged: proxy.ipChanged
     });
   }
   res.json(result);

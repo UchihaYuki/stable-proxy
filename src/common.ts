@@ -1,6 +1,7 @@
 import process from "process";
 import got from "got";
 import { HttpsProxyAgent } from "https-proxy-agent";
+import { HttpProxyAgent } from "http-proxy-agent";
 
 export function generateSessionID() {
   const availableChars =
@@ -17,9 +18,9 @@ export function getSessionPassword(sessionID: string) {
   return `${process.env.PROXY_PASSWORD}_country-UnitedStates_session-${sessionID}`;
 }
 
-export async function getResidentialProxyState(sessionID: string) {
-  const agent = new HttpsProxyAgent(
-    `https://${process.env.PROXY_USERNAME}:${getSessionPassword(sessionID)}@${process.env.PROXY_HOST}:${process.env.PROXY_PORT}`
+export async function getResidentialProxyLocation(port: number) {
+  const agent = new HttpProxyAgent(
+    `http://localhost:${port}`
   );
   const res = await got("https://ipapi.co/json/", {
     agent: {
@@ -36,8 +37,13 @@ export async function getResidentialProxyState(sessionID: string) {
   // console.log("location", res.body);
 
   const state = (res.body as any).region as string;
-  console.log("state", state);
-  return state;
+  console.log(`${port} - state: ${state}`);
+  const ip = (res.body as any).ip as string;
+  console.log(`${port} - ip: ${ip}`);
+  return {
+    state,
+    ip
+  };
 }
 
 export async function getResidentialProxyAverageSpeed(sessionID: string) {
@@ -63,61 +69,61 @@ async function getResidentialProxySpeed(sessionID: string) {
     timeout: 5e3,
   });
 
-  const responseTime = res.timings.phases.total as number;
-  console.log("response time", responseTime);
-  return responseTime;
+  const speed = res.timings.phases.total as number;
+  console.log(`session (${sessionID}) - speed: ${speed}ms`);
+  return speed;
 }
 
-export async function chooseResidentialProxy(state: string) {
-  let counter = 0;
-  while (true) {
-    counter++;
+// export async function chooseResidentialProxy(state: string) {
+//   let counter = 0;
+//   while (true) {
+//     counter++;
 
-    const sessionID = generateSessionID();
+//     const sessionID = generateSessionID();
 
-    let speed: number;
-    let realState: string;
-    try {
-      realState = await getResidentialProxyState(sessionID);
-      if (process.env.CHECK_STATE == "true") {
-        if (realState != state) {
-          console.log(
-            counter,
-            `The state (${realState}) of the residential proxy (${sessionID}) is not ${state}.`
-          );
-          continue;
-        } else {
-          console.log(
-            counter,
-            `A residential proxy (${sessionID}) is found for ${state}.`
-          );
-        }
-      }
+//     let speed: number;
+//     let realState: string;
+//     let ip: string;
+//     try {
+//       const r = await getResidentialProxyLocation(sessionID);
+//       realState = r.state;
+//       ip = r.ip;
+//       if (process.env.CHECK_STATE == "true") {
+//         if (realState != state) {
+//           console.log(
+//             `session (${sessionID}) - ${counter}: The state (${realState}) of the residential proxy is not ${state}.`
+//           );
+//           continue;
+//         } else {
+//           console.log(
+//             `session (${sessionID}) - ${counter}: A residential proxy is found for ${state}.`
+//           );
+//         }
+//       }
 
-      speed = await getResidentialProxyAverageSpeed(sessionID);
-      if (speed > parseInt(process.env.PROXY_SPEED_THRESHOLD as string)) {
-        console.log(
-          counter,
-          `The speed (${speed}ms) of the residential proxy (${sessionID}) is slower than ${parseInt(
-            process.env.PROXY_SPEED_THRESHOLD as string
-          )}ms.`
-        );
-        continue;
-      } else {
-        console.log(
-          counter,
-          `A residential proxy (${sessionID}) is found for ${state} with average speed ${speed}ms.`
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      continue;
-    }
+//       speed = await getResidentialProxyAverageSpeed(sessionID);
+//       if (speed > parseInt(process.env.PROXY_SPEED_THRESHOLD as string)) {
+//         console.log(
+//           `session (${sessionID}) - ${counter}: The speed (${speed}ms) of the residential proxy is slower than ${parseInt(
+//             process.env.PROXY_SPEED_THRESHOLD as string
+//           )}ms.`
+//         );
+//         continue;
+//       } else {
+//         console.log(
+//           `session (${sessionID}) - ${counter}: A residential proxy is found for ${state} with speed ${speed}ms.`
+//         );
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       continue;
+//     }
 
-    return {
-      sessionID,
-      speed,
-      realState
-    };
-  }
-}
+//     return {
+//       sessionID,
+//       speed,
+//       realState,
+//       ip
+//     };
+//   }
+// }
