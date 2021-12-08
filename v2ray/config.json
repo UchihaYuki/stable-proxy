@@ -1,26 +1,43 @@
 {
   "log": {
+    "access": "",
+    "error": "",
     "loglevel": "warning"
   },
-
-  "inbounds": [{
-    "port": "${PORT}",
-    "listen": "127.0.0.1",
-    "protocol": "http"
-  }],
-
+  "inbounds": [    
+    {
+      "tag": "http",
+      "port": "${PORT}",
+      "listen": "127.0.0.1",
+      "protocol": "http",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "settings": {
+        "allowTransparent": false
+      }
+    }
+  ],
   "outbounds": [
     {
+      "tag": "proxy",
       "protocol": "http",
       "settings": {
         "servers": [
           {
             "address": "${PROXY_HOST}",
+            "ota": false,
             "port": "${PROXY_PORT}",
+            "level": 1,
             "users": [
               {
                 "user": "${PROXY_USERNAME}",
-                "pass": "${PROXY_PASSWORD}"
+                "pass": "${PROXY_PASSWORD}",
+                "level": 1
               }
             ]
           }
@@ -35,5 +52,25 @@
         "concurrency": -1
       }
     }
-  ]
+  ],
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "domainMatcher": "linear",
+    "rules": [
+      {
+        "type": "field",
+        "inboundTag": [
+          "api"
+        ],
+        "outboundTag": "api",
+        "enabled": true
+      },
+      {
+        "type": "field",
+        "port": "0-65535",
+        "outboundTag": "proxy",
+        "enabled": true
+      }
+    ]
+  }
 }

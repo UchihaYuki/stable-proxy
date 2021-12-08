@@ -1,4 +1,5 @@
 .rsls
+.config-*.json
 
 # Logs
 logs

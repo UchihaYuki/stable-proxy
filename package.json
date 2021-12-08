@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx nodemon --watch src --exec ts-node src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "nodemon": "npx nodemon --watch src --exec ts-node src/index.ts",
+    "start": "npx ts-node src/index.ts",
+    "v2ray": "v2ray\\v2ray.exe -config=v2ray\\config-8001.json"
   },
   "keywords": [],
   "author": "",
