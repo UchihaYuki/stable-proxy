@@ -1,11 +1,8 @@
 import { spawn } from "child_process";
 import fs from "fs";
-import { chooseResidentialProxy } from "./common";
-import { proxies } from "./proxy";
+import { getSessionPassword } from "./common";
 
-export async function generateV2rayConfig(port: number, state: string) {
-  const sessionPassword = await chooseResidentialProxy(state);
-
+export function generateV2rayConfig(port: number, sessionID: string) {
   const config = fs.readFileSync("v2ray/config.json", "utf8");
 
   const replacedConfig = config
@@ -13,20 +10,15 @@ export async function generateV2rayConfig(port: number, state: string) {
     .replace("${PROXY_HOST}", process.env.PROXY_HOST as string)
     .replace('"${PROXY_PORT}"', process.env.PROXY_PORT as string)
     .replace("${PROXY_USERNAME}", process.env.PROXY_USERNAME as string)
-    .replace("${PROXY_PASSWORD}", sessionPassword);
+    .replace("${PROXY_PASSWORD}", getSessionPassword(sessionID));
 
   fs.writeFileSync(`v2ray/config-${port}.json`, replacedConfig);
 }
-
-export function stopV2ray(port: number) {}
 
 export function startV2ray(port: number) {
   const childProcess = spawn(`v2ray/v2ray.exe`, [
     `-config=v2ray/config-${port}.json`,
   ]);
-  proxies[port] = {
-    v2ray: childProcess,
-  };
 
   childProcess.stdout.on("data", (data) => {
     console.log(`stdout: ${data}`);
@@ -36,7 +28,9 @@ export function startV2ray(port: number) {
     console.error(`stderr: ${data}`);
   });
 
-  childProcess.on("close", (code) => {
-    console.log(`child process exited with code ${code}`);
+  childProcess.on("close", (code, signal) => {
+    console.log(`child process (${childProcess.pid}) exited with code ${code} and signal ${signal}`);
   });
+
+  return childProcess
 }

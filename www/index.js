@@ -21,7 +21,7 @@ async function matchProxies() {
     body: JSON.stringify(proxies),
   });
 
-  alert(response.data);
+  alert(await response.text());
 }
 
 async function getStatus() {
@@ -29,5 +29,11 @@ async function getStatus() {
     method: "POST",
   });
 
-  alert(response.data);
+  let res = await response.json();
+  res = res.map((proxy) => {
+    return Object.assign(proxy, {
+      lastSpeedTest: new Date(proxy.lastSpeedTest).toLocaleString(),
+    });
+  });
+  document.getElementById("status").innerText = JSON.stringify(res, null, 4);
 }

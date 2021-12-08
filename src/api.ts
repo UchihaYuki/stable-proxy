@@ -1,7 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { generateV2rayConfig, startV2ray, stopV2ray } from "./v2ray";
-import { proxies } from "./proxy";
+import { proxies, startProxy, stopProxy } from "./proxy";
 
 const app = express();
 
@@ -22,7 +21,7 @@ app.post("/api/matchProxies", async (req, res) => {
 
   for (const { inUse, port, state } of params) {
     if (!inUse) {
-      stopV2ray(port);
+      stopProxy(port);
       continue;
     }
 
@@ -30,24 +29,28 @@ app.post("/api/matchProxies", async (req, res) => {
       continue;
     }
 
-    await generateV2rayConfig(port, state);
-    // startV2ray(port);
+    await startProxy(port, state);
   }
 
   res.send("Succeeded!");
 });
 
-// app.post("/api/getStatus", (req, res) => {
-//   const result: {
-//     [port: number]: number | undefined;
-//   } = {};
-//   for (const port in v2ray) {
-//     const childProcess = v2ray[port];
-
-//     result[port] = childProcess.pid;
-//   }
-//   res.send(result);
-// });
+app.post("/api/getStatus", (req, res) => {
+  const result: any[] = [];
+  for (const port in proxies) {
+    const proxy = proxies[port];
+    result.push({
+      pid: proxy.v2ray.pid,
+      state: proxy.state,
+      realState: proxy.realState,
+      sessionID: proxy.sessionID,
+      timeoutCounter: proxy.timeoutCounter,
+      speed: proxy.speed,
+      lastSpeedTest: proxy.lastSpeedTest,
+    });
+  }
+  res.json(result);
+});
 
 app.listen(3000, "127.0.0.1", () => {
   console.log("listening at 127.0.0.1:3000...");
