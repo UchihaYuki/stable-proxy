@@ -10,8 +10,7 @@ export function generateSessionID() {
     var index = Math.floor(Math.random() * availableChars.length);
     result += availableChars[index];
   }
-//   return result;
-  return "12345687"
+  return result;
 }
 
 export async function getResidentialProxyState(sessionPassword: string) {
@@ -65,39 +64,44 @@ export async function chooseResidentialProxy(targetState: string) {
     const sessionID = generateSessionID();
     const sessionPassword = `${process.env.PROXY_PASSWORD}_country-UnitedStates_session-${sessionID}`;
 
-    if (process.env.CHECK_STATE == "true") {
-      const state = await getResidentialProxyState(sessionPassword);
-      if (state != targetState) {
+    try {
+      if (process.env.CHECK_STATE == "true") {
+        const state = await getResidentialProxyState(sessionPassword);
+        if (state != targetState) {
+          console.log(
+            counter,
+            `The state (${state}) of the residential proxy (${sessionID}) is not ${targetState}.`
+          );
+          continue;
+        } else {
+          console.log(
+            counter,
+            `A residential proxy (${sessionID}) is found for ${targetState}.`
+          );
+        }
+      }
+  
+      const speed1 = await getResidentialProxyResponseTime(sessionPassword);
+      const speed2 = await getResidentialProxyResponseTime(sessionPassword);
+      const speed3 = await getResidentialProxyResponseTime(sessionPassword);
+      const avgSpeed = (speed1 + speed2 + speed3) / 3;
+      if (avgSpeed > parseInt(process.env.PROXY_SPEED_THRESHOLD as string)) {
         console.log(
           counter,
-          `The state (${state}) of the residential proxy (${sessionID}) is not ${targetState}.`
+          `The speed (${avgSpeed}ms) of the residential proxy (${sessionID}) is slower than ${parseInt(
+            process.env.PROXY_SPEED_THRESHOLD as string
+          )}ms.`
         );
         continue;
       } else {
         console.log(
           counter,
-          `A residential proxy (${sessionID}) is found for ${targetState}.`
+          `A residential proxy (${sessionID}) is found for ${targetState} with average speed ${avgSpeed}ms.`
         );
       }
-    }
-
-    const speed1 = await getResidentialProxyResponseTime(sessionPassword);
-    const speed2 = await getResidentialProxyResponseTime(sessionPassword);
-    const speed3 = await getResidentialProxyResponseTime(sessionPassword);
-    const avgSpeed = (speed1 + speed2 + speed3) / 3;
-    if (avgSpeed > parseInt(process.env.PROXY_SPEED_THRESHOLD as string)) {
-      console.log(
-        counter,
-        `The speed (${avgSpeed}ms) of the residential proxy (${sessionID}) is slower than ${parseInt(
-          process.env.PROXY_SPEED_THRESHOLD as string
-        )}ms.`
-      );
+    } catch (error) {
+      console.error(error)
       continue;
-    } else {
-      console.log(
-        counter,
-        `A residential proxy (${sessionID}) is found for ${targetState} with average speed ${avgSpeed}ms.`
-      );
     }
 
     return sessionPassword;
