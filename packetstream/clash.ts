@@ -3,7 +3,7 @@ import fs from "fs";
 import { getSessionPassword } from "./common";
 
 function generateClashConfig(port: number, sessionID: string) {
-  const config = fs.readFileSync("clash/config.yml", "utf8");
+  const config = fs.readFileSync("packetstream/config/config.yml", "utf8");
 
   const replacedConfig = config
     .replace('"${PORT}"', port.toString())
@@ -12,15 +12,15 @@ function generateClashConfig(port: number, sessionID: string) {
     .replace("${PROXY_USERNAME}", process.env.PROXY_USERNAME as string)
     .replace("${PROXY_PASSWORD}", getSessionPassword(sessionID));
 
-  fs.writeFileSync(`clash/config-${port}.yml`, replacedConfig);
+  fs.writeFileSync(`packetstream/config/config-${port}.yml`, replacedConfig);
 }
 
 export function startClash(port: number, sessionID: string) {
   generateClashConfig(port, sessionID);
 
-  const childProcess = spawn(`clash/clash.exe`, [
+  const childProcess = spawn(`clash.exe`, [
     `-f`,
-    `clash/config-${port}.yml`,
+    `packetstream/config/config-${port}.yml`,
   ]);
 
   childProcess.stdout.on("data", (data: Buffer) => {

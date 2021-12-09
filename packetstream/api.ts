@@ -49,7 +49,7 @@ app.post("/api/getStatus", (req, res) => {
       ipChanged: proxy.ipChanged,
     });
   }
-  res.json(result);
+  res.send(JSON.stringify(result, null, 4));
 });
 
 app.listen(3000, "127.0.0.1", () => {
