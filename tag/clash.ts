@@ -1,10 +1,11 @@
 import { spawn } from "child_process";
-import fs from 'fs'
+import fs from "fs";
 
 export function startClash(port: number) {
+  
   const childProcess = spawn(`clash.exe`, [
-    `-f`,
-    `tag/config/config-${port}.yml`,
+    `-d`,
+    `clash/${port}`,
   ]);
 
   childProcess.stdout.on("data", (data: Buffer) => {

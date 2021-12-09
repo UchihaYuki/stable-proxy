@@ -6,7 +6,6 @@
   "scripts": {
     "packetstream": "npx ts-node packetstream/index.ts",
     "packetstream:dev": "npx nodemon --watch packetstream --exec ts-node packetstream/index.ts",
-    "packetstream:clash": "clash.exe -f packetstream\\config\\config-8001.yml",
     "tag": "npx ts-node tag/index.ts"
   },
   "keywords": [],

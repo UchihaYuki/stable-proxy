@@ -4,8 +4,6 @@ import { startClash } from "./clash";
 import { promisify } from "util";
 
 async function main() {
-  fs.mkdirSync("tag/config", { recursive: true });
-
   const { proxies } = yaml.load(fs.readFileSync("tag/proxies.yml", "utf8")) as {
     proxies: any[];
   };
@@ -20,7 +18,8 @@ async function main() {
     config.proxies = [proxy];
     config.port = port;
 
-    fs.writeFileSync(`tag/config/config-${port}.yml`, yaml.dump(config));
+    fs.mkdirSync(`clash/${port}`, { recursive: true });
+    fs.writeFileSync(`clash/${port}/config.yaml`, yaml.dump(config));
 
     startClash(port);
   }
