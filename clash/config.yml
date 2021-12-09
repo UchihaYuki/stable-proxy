@@ -1,0 +1,21 @@
+# Port of HTTP(S) proxy server on the local end
+port: "${PORT}"
+
+# Clash by default prints logs to STDOUT
+# info / warning / error / debug / silent
+log-level: warning
+
+proxies:
+  # http
+  - name: "packetstream"
+    type: http
+    server: "${PROXY_HOST}"
+    port: ""${PROXY_PORT}""
+    username: "${PROXY_USERNAME}"
+    password: "${PROXY_PASSWORD}"
+    tls: true # https
+    # skip-cert-verify: true
+    # sni: custom.com
+
+rules:
+  - MATCH,packetstream

@@ -6,7 +6,7 @@
   "scripts": {
     "nodemon": "npx nodemon --watch src --exec ts-node src/index.ts",
     "start": "npx ts-node src/index.ts",
-    "v2ray": "v2ray\\v2ray.exe -config=v2ray\\config-8001.json"
+    "clash": "clash\\clash.exe -f clash\\config-8001.yml"
   },
   "keywords": [],
   "author": "",

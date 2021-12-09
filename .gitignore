@@ -1,5 +1,5 @@
 *.rsls
-config-*.json
+config-*.yml
 
 # Logs
 logs

@@ -9,7 +9,7 @@ app.use(express.static("www"));
 app.use(bodyParser.json());
 
 app.post("/api/matchProxies", async (req, res) => {
-  const params: { inUse: boolean; port: number; state: string }[] = (
+  const body: { inUse: boolean; port: number; state: string }[] = (
     req.body as { inUse: string; port: string; state: string }[]
   ).map((proxy) => ({
     inUse: proxy.inUse == "yes",
@@ -17,15 +17,11 @@ app.post("/api/matchProxies", async (req, res) => {
     state: proxy.state,
   }));
 
-  console.log("/api/matchProxies", params);
+  console.log("/api/matchProxies", body);
 
-  for (const { inUse, port, state } of params) {
+  for (const { inUse, port, state } of body) {
     if (!inUse) {
       stopProxy(port);
-      continue;
-    }
-
-    if (proxies[port]) {
       continue;
     }
 
@@ -42,7 +38,7 @@ app.post("/api/getStatus", (req, res) => {
   for (const port in proxies) {
     const proxy = proxies[port];
     result.push({
-      pid: proxy.v2ray.pid,
+      pid: proxy.childProcess.pid,
       state: proxy.state,
       realState: proxy.realState,
       sessionID: proxy.sessionID,
