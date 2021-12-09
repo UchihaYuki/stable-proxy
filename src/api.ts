@@ -10,13 +10,12 @@ app.use(bodyParser.json());
 
 app.post("/api/matchProxies", async (req, res) => {
   const body: { inUse: boolean; port: number; state: string }[] = (
-    req.body as { inUse: string; port: string; state: string }[]
+    req.body as { inUse: string | boolean; port: number; state: string }[]
   ).map((proxy) => ({
-    inUse: proxy.inUse == "yes",
-    port: parseInt(proxy.port),
+    inUse: proxy.inUse == "TRUE" || proxy.inUse == "true" || proxy.inUse == true,
+    port: proxy.port,
     state: proxy.state,
   }));
-
   console.log("/api/matchProxies", body);
 
   for (const { inUse, port, state } of body) {

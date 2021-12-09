@@ -1,5 +1,6 @@
 *.rsls
 config-*.yml
+curl/proxies.json
 
 # Logs
 logs
