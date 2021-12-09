@@ -1,5 +1,5 @@
 import { ChildProcessWithoutNullStreams } from "child_process";
-import got from "got";
+import got, { RequestError } from "got";
 import { startClash } from "./clash";
 import { generateSessionID, getAgent, getUserAgent } from "./common";
 
@@ -65,7 +65,7 @@ export async function startProxy(port: number, state: string) {
           proxy.ipChanged = ip != proxy.ip;
         }
       } catch (error) {
-        console.log(port, error);
+        console.log(port, (error as RequestError).code, (error as RequestError).message);
       }
     }, 10 * 6e4),
   };
@@ -164,7 +164,7 @@ async function chooseResidentialProxy(port: number, state: string) {
         `${port} - ${counter}: A residential proxy is found for ${state} with speed ${speed}ms.`
       );
     } catch (error) {
-      console.log(port, error);
+        console.log(port, (error as RequestError).code, (error as RequestError).message);
       childProcess.kill("SIGINT");
       continue;
     }

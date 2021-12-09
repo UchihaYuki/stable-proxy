@@ -38,6 +38,7 @@ app.post("/api/getStatus", (req, res) => {
   for (const port in proxies) {
     const proxy = proxies[port];
     result.push({
+      port,
       pid: proxy.childProcess.pid,
       state: proxy.state,
       realState: proxy.realState,
@@ -46,7 +47,7 @@ app.post("/api/getStatus", (req, res) => {
       speed: proxy.speed,
       lastSpeedTest: proxy.lastSpeedTest,
       ip: proxy.ip,
-      ipChanged: proxy.ipChanged
+      ipChanged: proxy.ipChanged,
     });
   }
   res.json(result);
