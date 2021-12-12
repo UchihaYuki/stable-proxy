@@ -1,5 +1,7 @@
 {
     "files.exclude": {
         "**/*.rsls": true,
+        // "**/*.js": true,
+        "**/*.js.map": true,
     }
 }

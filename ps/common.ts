@@ -1,6 +1,6 @@
 import process from "process";
 import got from "got";
-import { HttpsProxyAgent } from "https-proxy-agent";
+import { HttpsProxyAgent } from "hpagent";
 import { startClash } from "./clash";
 
 export function generateSessionID() {
@@ -15,12 +15,12 @@ export function generateSessionID() {
 }
 
 export function getSessionPassword(sessionID: string) {
-  return `${process.env.PROXY_PASSWORD}_country-UnitedStates_session-${sessionID}`;
+  return `${process.env.PS_PROXY_PASSWORD}_country-UnitedStates_session-${sessionID}`;
 }
 
 export function getAgent(port: number) {
   return {
-    https: new HttpsProxyAgent(`http://localhost:${port}`),
+    https: new HttpsProxyAgent({ proxy: `http://localhost:${port}` }),
   };
 }
 

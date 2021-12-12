@@ -1,8 +1,9 @@
 *.rsls
-config-*.yml
 proxies.json
-proxies.yml
-clash/*
+clash
+tmp
+*.js
+*.js.map
 
 # Logs
 logs

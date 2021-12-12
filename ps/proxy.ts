@@ -52,7 +52,7 @@ export async function startProxy(port: number, state: string) {
         proxy.speed = speed;
         proxy.lastSpeedTest = new Date();
 
-        if (speed > parseInt(process.env.PROXY_SPEED_THRESHOLD as string)) {
+        if (speed > parseInt(process.env.PS_SPEED_THRESHOLD as string)) {
           proxy.timeoutCounter++;
           console.log(
             port,
@@ -74,20 +74,22 @@ export async function startProxy(port: number, state: string) {
 }
 
 async function getResidentialProxyLocation(port: number) {
-  const res = await got("https://ipapi.co/json/", {
+  const { body } = await got("https://ipapi.co/json/", {
     agent: getAgent(port),
     headers: {
       "User-Agent": getUserAgent(),
     },
     responseType: "json",
-    timeout: 5e3,
+    timeout: {
+      request: 5e3
+    }
   });
 
-  // console.log(port, "location", res.body);
+  // console.log(port, "location", res);
 
-  const state = (res.body as any).region as string;
+  const state = (body as any).region as string;
   console.log(port, `state: ${state}`);
-  const ip = (res.body as any).ip as string;
+  const ip = (body as any).ip as string;
   console.log(port, `ip: ${ip}`);
   return {
     state,
@@ -104,15 +106,14 @@ async function getResidentialProxyAverageSpeed(port: number) {
 }
 
 async function getResidentialProxySpeed(port: number) {
-  const res = await got("https://www.google.com", {
+  const { timings} = await got("https://www.google.com", {
     agent: getAgent(port),
     headers: {
       "User-Agent": getUserAgent(),
     },
-    timeout: 5e3,
   });
 
-  const speed = res.timings.phases.total as number;
+  const speed = timings.phases.total as number;
   console.log(port, `speed: ${speed}ms`);
   return speed;
 }
@@ -124,7 +125,7 @@ async function chooseResidentialProxy(port: number, state: string) {
 
     const sessionID = generateSessionID();
 
-    const childProcess = startClash(port, sessionID);
+    const childProcess = await startClash(port, sessionID);
 
     let realState: string;
     let ip: string;
@@ -134,7 +135,14 @@ async function chooseResidentialProxy(port: number, state: string) {
       realState = location.state;
       ip = location.ip;
 
-      if (process.env.CHECK_STATE == "true" && realState != state) {
+      for (const proxy in proxies) {
+        if (proxies[proxy].ip == ip) {
+          childProcess.kill("SIGINT");
+          continue;
+        }
+      }
+
+      if (process.env.PS_CHECK_STATE == "true" && realState != state) {
         console.log(
           port,
           `${counter}: The state (${realState}) of the residential proxy is not ${state}.`
@@ -149,11 +157,11 @@ async function chooseResidentialProxy(port: number, state: string) {
       );
 
       speed = await getResidentialProxyAverageSpeed(port);
-      if (speed > parseInt(process.env.PROXY_SPEED_THRESHOLD as string)) {
+      if (speed > parseInt(process.env.PS_SPEED_THRESHOLD as string)) {
         console.log(
           port,
           `${counter}: The speed (${speed}ms) of the residential proxy is slower than ${parseInt(
-            process.env.PROXY_SPEED_THRESHOLD as string
+            process.env.PS_SPEED_THRESHOLD as string
           )}ms.`
         );
         childProcess.kill("SIGINT");
@@ -161,7 +169,8 @@ async function chooseResidentialProxy(port: number, state: string) {
       }
 
       console.log(
-        `${port} - ${counter}: A residential proxy is found for ${state} with speed ${speed}ms.`
+        port,
+        `${counter}: A residential proxy is found for ${state} with speed ${speed}ms.`
       );
     } catch (error) {
         console.log(port, (error as RequestError).code, (error as RequestError).message);

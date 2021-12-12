@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "noImplicitAny": true,
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "sourceMap": true,
+    "moduleResolution": "node"
+  },
+  "include": ["stat/**/*.ts", "ps/**/*.ts", "tag/**/*.ts"]
+}
