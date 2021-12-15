@@ -9,5 +9,5 @@
     "sourceMap": true,
     "moduleResolution": "node"
   },
-  "include": ["stat/**/*.ts", "ps/**/*.ts", "tag/**/*.ts"]
+  "include": ["stat/**/*.ts", "ps/**/*.ts", "tag/**/*.ts", "ws/**/*.ts"]
 }

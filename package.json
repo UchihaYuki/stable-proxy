@@ -7,8 +7,10 @@
     "ps": "npx tsc && node ps/index.js",
     "ps:dev": "npx nodemon --watch ps --exec ts-node ps/index.ts",
     "tag": "npx tsc && node tag/index.js",
+    "ws": "npx tsc && node ws/index.js",
     "clash": "clash.exe -d clash/8001",
-    "stat:ps-geo": "npx tsc && node stat/ps-geo.js"
+    "stat:ps-geo": "npx tsc && node stat/ps-geo.js",
+    "stat:ws-type": "npx tsc && node stat/ws-type.js"
   },
   "keywords": [],
   "author": "",
@@ -17,14 +19,20 @@
     "@types/express": "^4.17.13",
     "@types/js-yaml": "^4.0.5",
     "body-parser": "^1.19.0",
+    "convert-array-to-csv": "^2.0.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "got": "^11.8.3",
     "hpagent": "^0.1.2",
     "js-yaml": "^4.1.0",
+    "node-fetch": "^2.6.6",
     "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "xlsx": "^0.17.4"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.5.12"
   }
 }

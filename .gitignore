@@ -1,5 +1,6 @@
 *.rsls
 proxies.json
+proxies.txt
 clash
 tmp
 *.js

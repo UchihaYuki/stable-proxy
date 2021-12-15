@@ -9,13 +9,10 @@ import { promisify } from "util";
 import got from "got";
 
 async function main() {
-  const response = await got(process.env.TAG_CLASH_URL as string);
-  const { proxies } = yaml.load(response.body) as {
-    proxies: { name: string }[];
-  };
+  const proxies = fs.readFileSync("ws/proxies.txt", "utf8").split("\r\n").filter(proxy => !!proxy)
 
   let port = 8000;
-  for (const proxy of proxies.filter((p) => p.name.includes("美国"))) {
+  for (const proxy of proxies) {
     port++;
 
     await startClash(port, proxy);
